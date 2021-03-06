@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -29,6 +30,12 @@ public class Agenda implements Serializable {
     private int totalNo;
     @JsonIgnore
     @DBRef
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
+
+    public boolean isUserAlreadyVoted(String cpfUser){
+        return this.votes.stream().anyMatch(vote -> vote.getCpf().equals(cpfUser));
+    }
+
+
 
 }
