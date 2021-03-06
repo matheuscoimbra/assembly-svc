@@ -3,13 +3,17 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://admin:dUEIUUtDLCAojL4a@cemprestimo-uf93j.mongodb.net/test?retryWrites=true&w=majority
+      uri: ${MONGO_URI}
   rabbitmq:
     port: ${RM_PORT:1883}
     username: ${RM_USER:ureohfqi:ureohfqi}
-    password: ${RM_PASSWORD:q_WmbVnQ2mE5C1_42CwyhWbMIKgN-qYX}
-    host: ${RM_HOST:jackal.rmq.cloudamqp.com}
+    password: ${RM_PASSWORD}
+    host: ${RM_HOST}
 
 rm:
   queue:
     name: ${RM_QUEUE_NOTIFICATION:notification-vote-send}
+
+app:
+  url:
+    validcpf: https://user-info.herokuapp.com/users
