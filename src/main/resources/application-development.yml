@@ -1,11 +1,14 @@
 spring:
   rabbitmq:
+    port: ${RM_PORT:5672}
+    username: ${RM_USER:guest}
+    password: ${RM_PASSWORD:guest}
+    host: ${RM_HOST:localhost}
     ssl:
       enabled: false
-    addresses: ${AMQP_ADDRS}
   config:
     activate:
-      on-profile: staging
+      on-profile: development
 
 rm:
   queue:
