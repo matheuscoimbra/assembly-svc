@@ -3,9 +3,7 @@ spring:
     ssl:
       enabled: false
     addresses: ${AMQP_ADDRS}
-  config:
-    activate:
-      on-profile: staging
+
 
 rm:
   queue:
