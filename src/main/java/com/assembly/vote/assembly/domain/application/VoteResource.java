@@ -10,11 +10,13 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.print.attribute.standard.Media;
 import javax.validation.Valid;
 
 @RestController
@@ -31,7 +33,7 @@ public class VoteResource {
             @ApiResponse(code = 422, message = "Pauta já fechou"),
             @ApiResponse(code = 429, message = "Usuário já votou na pauta"),
             @ApiResponse(code = 404, message = "Recurso não encontrado")})
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<VoteResponseDTO>> saveVote(@RequestBody @Valid VoteRequestDTO voteRequestDTO){
         return assemblyFacade.saveVote(voteRequestDTO).map((vote) -> new ResponseEntity<>(vote, HttpStatus.OK));
     }
