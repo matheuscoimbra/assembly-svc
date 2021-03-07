@@ -18,6 +18,7 @@ import com.assembly.vote.assembly.infrastructure.exception.UnauthorizedException
 import com.assembly.vote.assembly.infrastructure.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -62,11 +63,14 @@ public class AssemblyFacade implements AgendaRequestIncoming, VoteRequestIncomin
     }
 
     @Override
-    public void startAgenda(StartAgendaRequestDTO startAgendaRequestDTO) {
-        agendaDatabaseAdapter.findById(startAgendaRequestDTO.getAgendaId()).doOnNext(
+    public Mono<Agenda> startAgenda(StartAgendaRequestDTO startAgendaRequestDTO) {
+       return agendaDatabaseAdapter.findById(startAgendaRequestDTO.getAgendaId()).flatMap(
                 agenda -> {
                     if(agenda.isOpen()){
-                        throw new DomainBusinessException("Pauta " + agenda.getTitle() + " já foi iniciada anteriormente");
+                      throw  new DomainBusinessException("Pauta " + agenda.getTitle() + " já foi iniciada anteriormente");
+                    }
+                    if(!agenda.isOpen() && !StringUtils.isEmpty(agenda.getFinishDateTime())){
+                        throw  new DomainBusinessException("Pauta " + agenda.getTitle() + " já foi fechada");
                     }
                     log.info("Iniciando pauta " + agenda.getTitle());
                     var now = LocalDateTime.now();
@@ -78,9 +82,9 @@ public class AssemblyFacade implements AgendaRequestIncoming, VoteRequestIncomin
                         agenda.setFinishDateTime(DateUtils.toString(DateUtils.convertToDateViaInstant(finishAgendaTime)));
                     }
                     agenda.setOpen(true);
-                    agendaDatabaseAdapter.save(agenda).subscribe();
+                    return agendaDatabaseAdapter.save(agenda);
                 }
-        ).switchIfEmpty(Mono.error(new NotFoundException("Pauta não encontrado para id " + startAgendaRequestDTO.getAgendaId()))).subscribe();
+        ).switchIfEmpty(Mono.error(new NotFoundException("Pauta não encontrado para id " + startAgendaRequestDTO.getAgendaId())));
     }
 
     @Override

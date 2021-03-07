@@ -46,12 +46,14 @@ public class VerifyAgendaClosed {
                 agendaDatabaseAdapter.save(agenda1).subscribe();
                 //TODO:notifica
                 voteDatabaseAdapter.findAllByAgenda(agenda1.getId()).collectList().doOnNext(votes -> {
-                    var CPFs  = votes.stream().map(Vote::getCpf).collect(Collectors.toList());
-                    AgendaResultDTO agendaResultDTO = AgendaResultDTO.builder()
-                            .totalNo(agenda1.getTotalNo()).totalYes(agenda1.getTotalYes())
-                            .totalVotes(agenda1.getTotalNo()+agenda1.getTotalYes()).build();
-                    UserNotificationDTO userNotificationDTO = UserNotificationDTO.builder().cpf(CPFs).notification(agendaResultDTO).build();
-                    notificationSender.send(userNotificationDTO);
+                    if(votes!=null && !votes.isEmpty()) {
+                        var CPFs = votes.stream().map(Vote::getCpf).collect(Collectors.toList());
+                        AgendaResultDTO agendaResultDTO = AgendaResultDTO.builder()
+                                .totalNo(agenda1.getTotalNo()).totalYes(agenda1.getTotalYes())
+                                .totalVotes(agenda1.getTotalNo() + agenda1.getTotalYes()).build();
+                        UserNotificationDTO userNotificationDTO = UserNotificationDTO.builder().cpf(CPFs).notification(agendaResultDTO).build();
+                        notificationSender.send(userNotificationDTO);
+                    }
                 }).subscribe();
             });
         }).subscribe();

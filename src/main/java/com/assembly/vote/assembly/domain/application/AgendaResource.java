@@ -40,8 +40,8 @@ public class AgendaResource {
             @ApiResponse(code = 422, message = "Pauta já foi iniciada anteriormente"),
             @ApiResponse(code = 404, message = "Recurso não encontrado")})
     @PatchMapping("start")
-    public void startAgenda(StartAgendaRequestDTO startAgendaRequestDTO){
-        assemblyFacade.startAgenda(startAgendaRequestDTO);
+    public Mono<Agenda>  startAgenda(StartAgendaRequestDTO startAgendaRequestDTO){
+        return assemblyFacade.startAgenda(startAgendaRequestDTO);
     }
 
     @ApiOperation(value = "API para retornar pauta por Id")
