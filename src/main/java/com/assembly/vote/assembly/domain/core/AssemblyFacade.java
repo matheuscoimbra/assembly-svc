@@ -65,6 +65,9 @@ public class AssemblyFacade implements AgendaRequestIncoming, VoteRequestIncomin
     public void startAgenda(StartAgendaRequestDTO startAgendaRequestDTO) {
         agendaDatabaseAdapter.findById(startAgendaRequestDTO.getAgendaId()).doOnNext(
                 agenda -> {
+                    if(agenda.isOpen()){
+                        throw new DomainBusinessException("Pauta " + agenda.getTitle() + " já foi iniciada anteriormente");
+                    }
                     log.info("Iniciando pauta " + agenda.getTitle());
                     var now = LocalDateTime.now();
                     agenda.setStartDatetime(DateUtils.toString(DateUtils.convertToDateViaInstant(now)));

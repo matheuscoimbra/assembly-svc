@@ -1,0 +1,15 @@
+spring:
+  rabbitmq:
+    port: ${RM_PORT:5672}
+    username: ${RM_USER:guest}
+    password: ${RM_PASSWORD:guest}
+    host: ${RM_HOST:localhost}
+    ssl:
+      enabled: false
+  config:
+    activate:
+      on-profile: development
+
+rm:
+  queue:
+    name: ${RM_QUEUE_NOTIFICATION:notification-vote-send}

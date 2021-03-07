@@ -1,5 +1,10 @@
 package com.assembly.vote.assembly;
 
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +19,9 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 public class AssemblyApplication {
+
+    @Value("${rm.queue.name}")
+    private String queue;
 
     public static void main(String[] args) {
         SpringApplication.run(AssemblyApplication.class, args);
@@ -36,5 +44,24 @@ public class AssemblyApplication {
                 .paths(PathSelectors.any())
                 .build();
 
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(producerJackson2MessageConverter());
+        return rabbitTemplate;
+    }
+
+
+
+    @Bean
+    public Queue queue() {
+        return new Queue(queue, false);
     }
 }

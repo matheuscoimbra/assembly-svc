@@ -1,14 +1,13 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
 spring:
+  profiles:
+    active: ${APP_ENVIRONMENT}
   data:
     mongodb:
-      uri: ${MONGO_URI}
-  rabbitmq:
-    port: ${RM_PORT:1883}
-    username: ${RM_USER:ureohfqi:ureohfqi}
-    password: ${RM_PASSWORD}
-    host: ${RM_HOST}
+      uri: ${MONGO_URI:mongodb://localhost:27017}
+
 
 rm:
   queue:

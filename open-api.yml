@@ -1,0 +1,301 @@
+swagger: '2.0'
+info:
+  description: This API allows CRUD operations and business logical operations
+  version: 1.0.0
+  title: ASSEMBLY AGENDA API
+host: 'localhost:8080'
+basePath: /
+tags:
+  - name: v1/agenda
+    description: Agenda Resource
+  - name: vote-resource
+    description: Vote Resource
+paths:
+  /v1/agenda:
+    get:
+      tags:
+        - v1/agenda
+      summary: API para retornar pauta por Id
+      operationId: getOneByIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: query
+          description: id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Retorno OK pauta.
+          schema:
+            $ref: '#/definitions/AgendaCompleteResponseDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Recurso não encontrado
+    post:
+      tags:
+        - v1/agenda
+      summary: API para criar uma pauta
+      operationId: saveAgendaUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: agendaRequestDTO
+          description: agendaRequestDTO
+          required: true
+          schema:
+            $ref: '#/definitions/AgendaRequestDTO'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/AgendaResponseDTO'
+        '201':
+          description: Retorno CREATED
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /v1/agenda/all:
+    get:
+      tags:
+        - v1/agenda
+      summary: API para retornar pautas
+      operationId: findAllPageUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: page
+          in: query
+          description: page
+          required: true
+          type: integer
+          format: int32
+        - name: size
+          in: query
+          description: size
+          required: true
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Retorno OK pauta.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Agenda'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /v1/agenda/start:
+    patch:
+      tags:
+        - v1/agenda
+      summary: API para iniciar uma pauta
+      operationId: startAgendaUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: agendaId
+          in: query
+          required: false
+          type: string
+        - name: durationAgenda.hour
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: durationAgenda.minute
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: durationAgenda.nano
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: durationAgenda.second
+          in: query
+          required: false
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Retorno OK pauta iniciada.
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Recurso não encontrado
+        '422':
+          description: Pauta já foi iniciada anteriormente
+  /v1/vote:
+    post:
+      tags:
+        - vote-resource
+      summary: API para votar uma pauta
+      operationId: saveVoteUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: voteRequestDTO
+          description: voteRequestDTO
+          required: true
+          schema:
+            $ref: '#/definitions/VoteRequestDTO'
+      responses:
+        '200':
+          description: Retorno OK pauta votada.
+          schema:
+            $ref: '#/definitions/VoteResponseDTO'
+        '201':
+          description: Created
+        '401':
+          description: Usuário UNABLE_TO_VOTE
+        '403':
+          description: Forbidden
+        '404':
+          description: Recurso não encontrado
+        '422':
+          description: Pauta já fechou
+        '429':
+          description: Usuário já votou na pauta
+definitions:
+  Agenda:
+    type: object
+    properties:
+      description:
+        type: string
+      finishDateTime:
+        type: string
+      id:
+        type: string
+      open:
+        type: boolean
+      startDatetime:
+        type: string
+      title:
+        type: string
+      totalNo:
+        type: integer
+        format: int32
+      totalVote:
+        type: integer
+        format: int32
+      totalYes:
+        type: integer
+        format: int32
+    title: Agenda
+  AgendaCompleteResponseDTO:
+    type: object
+    properties:
+      description:
+        type: string
+      finishDateTime:
+        type: string
+      id:
+        type: string
+      open:
+        type: boolean
+      startDatetime:
+        type: string
+      title:
+        type: string
+      totalNo:
+        type: integer
+        format: int32
+      totalVote:
+        type: integer
+        format: int32
+      totalYes:
+        type: integer
+        format: int32
+      votes:
+        type: array
+        items:
+          $ref: '#/definitions/Vote'
+    title: AgendaCompleteResponseDTO
+  AgendaRequestDTO:
+    type: object
+    required:
+      - title
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    title: AgendaRequestDTO
+  AgendaResponseDTO:
+    type: object
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    title: AgendaResponseDTO
+  Vote:
+    type: object
+    properties:
+      agendaId:
+        type: string
+      cpf:
+        type: string
+      id:
+        type: string
+      vote:
+        type: string
+        enum:
+          - NAO
+          - SIM
+    title: Vote
+  VoteRequestDTO:
+    type: object
+    required:
+      - agendaId
+      - cpf
+      - vote
+    properties:
+      agendaId:
+        type: string
+      cpf:
+        type: string
+      vote:
+        type: string
+        enum:
+          - NAO
+          - SIM
+    title: VoteRequestDTO
+  VoteResponseDTO:
+    type: object
+    properties:
+      cpf:
+        type: string
+      vote:
+        type: string
+        enum:
+          - NAO
+          - SIM
+    title: VoteResponseDTO

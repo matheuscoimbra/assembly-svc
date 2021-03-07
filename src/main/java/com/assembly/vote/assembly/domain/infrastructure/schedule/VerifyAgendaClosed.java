@@ -1,5 +1,9 @@
 package com.assembly.vote.assembly.domain.infrastructure.schedule;
 
+import com.assembly.vote.assembly.domain.application.publisher.NotificationSender;
+import com.assembly.vote.assembly.domain.core.model.Vote;
+import com.assembly.vote.assembly.domain.core.model.dto.AgendaResultDTO;
+import com.assembly.vote.assembly.domain.core.model.dto.UserNotificationDTO;
 import com.assembly.vote.assembly.domain.infrastructure.adapter.AssemblyAgendaDatabaseAdapter;
 import com.assembly.vote.assembly.domain.infrastructure.adapter.AssemblyVoteDatabaseAdapter;
 import com.assembly.vote.assembly.infrastructure.utils.DateUtils;
@@ -12,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,11 +27,11 @@ public class VerifyAgendaClosed {
 
     private final AssemblyAgendaDatabaseAdapter agendaDatabaseAdapter;
     private final AssemblyVoteDatabaseAdapter voteDatabaseAdapter;
+    private final NotificationSender notificationSender;
 
     @Scheduled(cron = "0 0/1 * 1/1 * ?")
     @Async
     public void sendTask() {
-        log.info("[T1] Buscando pautas");
 
         var dateSearchBegin = LocalDateTime.now().withSecond(0);
         var dateSearchBeginEnd = dateSearchBegin.plusSeconds(59);
@@ -40,6 +45,14 @@ public class VerifyAgendaClosed {
                 agenda1.setOpen(false);
                 agendaDatabaseAdapter.save(agenda1).subscribe();
                 //TODO:notifica
+                voteDatabaseAdapter.findAllByAgenda(agenda1.getId()).collectList().doOnNext(votes -> {
+                    var CPFs  = votes.stream().map(Vote::getCpf).collect(Collectors.toList());
+                    AgendaResultDTO agendaResultDTO = AgendaResultDTO.builder()
+                            .totalNo(agenda1.getTotalNo()).totalYes(agenda1.getTotalYes())
+                            .totalVotes(agenda1.getTotalNo()+agenda1.getTotalYes()).build();
+                    UserNotificationDTO userNotificationDTO = UserNotificationDTO.builder().cpf(CPFs).notification(agendaResultDTO).build();
+                    notificationSender.send(userNotificationDTO);
+                }).subscribe();
             });
         }).subscribe();
 

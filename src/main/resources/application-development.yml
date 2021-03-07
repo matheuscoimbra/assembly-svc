@@ -1,0 +1,12 @@
+spring:
+  rabbitmq:
+    ssl:
+      enabled: false
+    addresses: ${AMQP_ADDRS}
+  config:
+    activate:
+      on-profile: staging
+
+rm:
+  queue:
+    name: ${RM_QUEUE_NOTIFICATION:notification-vote-send}
