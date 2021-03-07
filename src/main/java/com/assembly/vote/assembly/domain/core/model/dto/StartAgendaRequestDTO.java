@@ -11,6 +11,5 @@ import java.time.LocalTime;
 public class StartAgendaRequestDTO {
     private String agendaId;
     @JsonFormat(pattern = "HH:mm")
-    @Schema(type="string" , example = "00:00")
     private LocalTime durationAgenda;
 }
