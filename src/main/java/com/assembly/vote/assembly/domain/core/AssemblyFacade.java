@@ -102,7 +102,7 @@ public class AssemblyFacade implements AgendaRequestIncoming, VoteRequestIncomin
                         .flatMap(Mono::error)).bodyToMono(ValidCPFResult.class)
                 .flatMap(resultRequest -> {
                     if (resultRequest.getStatus().equals(AVAILABLEUSER.UNABLE_TO_VOTE.toString())) {
-                        return Mono.error(new UnauthorizedException("Usuário não pode executar opração"));
+                        return Mono.error(new UnauthorizedException("Usuário não pode executar operação"));
                     } else {
                         return getVoteResponse(voteRequestDTO);
                     }
